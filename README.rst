@@ -121,12 +121,12 @@ You can also decorate class methods (including both old and new style classes):
 
 .. warning::
 
-    This library is compatible with python3 but under python3 you can apply the `kwonly_args.first_kwonly_arg`
+    This library is compatible with python3 but under python3 you can apply the ``kwonly_args.first_kwonly_arg``
     decorator only to functions that have a python2 compatible signature. E.g.: If your function has python3
-    keyword-only arguments then applying this decorator fails (because of the used `inspect.getargspec()` function
+    keyword-only arguments then applying this decorator fails (because of the used ``inspect.getargspec()`` function
     doesn't support python2-incompatible signatures).
 
-    This library could circumvent this problem by using `inspect.getfullargspec()` under python3 but why would we
+    This library could circumvent this problem by using ``inspect.getfullargspec()`` under python3 but why would we
     emulate keyword-only arguments in python3 when it is natively available and why whould we apply a python2
     helper library on a piece of code that doesn't even compile under python2? On top of this it would provide
     two different places (before and after the varargs - eumulated and native python3) in your function arg list to
@@ -180,8 +180,8 @@ fun and also for the following reasons:
   idea of identifying arguments with indexes. The only minor disadvantage of using arg names instead of arg indexes
   is that using arg names requires direct access to the signature of the *original* wrapped function.
   If there are other decorators between our decorator and the original function then under python2 using names isn't
-  really possible (because `functools.update_wrapper()` and decorators in general don't have/support the `__wrapped__`
-  attribute to maintain a chain back to the originally wrapped function).
+  really possible (because ``functools.update_wrapper()`` and decorators in general don't have/support the
+  ``__wrapped__`` attribute to maintain a chain back to the originally wrapped function).
 - Some implementations allow you to pick an arbitrary set of positional arguments by specifying their indexes or names.
   I don't like the idea of promoting arbitrary positional arguments into keyword-only arguments by scattering
   keyword-only args through the remaining positional args. It degrades code readability a lot. This is why I decided
