@@ -97,7 +97,7 @@ You can also decorate class methods (including both old and new style classes):
 
 .. code-block:: python
 
-    from kwonly_args import first_kwonly_arg, KWONLY_REQUIRED
+    from kwonly_args import first_kwonly_arg
 
 
     class MyClass:
