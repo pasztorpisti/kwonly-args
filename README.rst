@@ -153,7 +153,7 @@ the first ``argv`` argument can be passed as positional, the rest are keyword-on
 
     # 2. calling using keyword arguments:
     draw_circle(x=100, y=200, radius=50, filled=True)
-    draw_circle(x=200, y=100, radius_x=100, radius_y=50)
+    draw_ellipse(x=200, y=100, radius_x=100, radius_y=50)
 
 Without keyword-only arguments users of your function will be able to use both of the above conventions. If you
 employ keyword-only arguments then they can use only #2. In case of a simple function like my ``draw_circle()`` it
@@ -176,13 +176,16 @@ most of the arguments keyword-only:
     argv = ['ls', '-l']
 
     # BAD! I think I don't really have to explain why...
-    p = subprocess.Popen(argv, -1, None, subprocess.PIPE, subprocess.PIPE, subprocess.STDOUT, None, True, True)
+    p = subprocess.Popen(argv, -1, None, subprocess.PIPE, subprocess.PIPE,
+                         subprocess.STDOUT, None, True, True)
 
     # GOOD! And this has the same behavior as the previous call.
     # I think it is well worth enforcing this form with keyword-only args.
-    p = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    p = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT, shell=True)
 
-    # If the number of passed arguments exceeds my threshold I switch to the following format for readability:
+    # If the number of passed arguments exceeds my threshold
+    # I switch to the following format for readability:
     p = subprocess.Popen(
         argv,
         stdin=subprocess.PIPE,
@@ -307,11 +310,6 @@ positional arguments into keyword-only args.
 Why does this "library" exist?
 ------------------------------
 
-The world gives birth to new things in every single moment. This is a key driver behind evolution. But anyway, you are
-just too naive if you think you can stop code-monkeys with this question. :-D Even a bad reimplementation can give
-new insights sometimes but in worst case the author learns some new things and learns to appreciate existing
-implementations for hiding the discovered hell/complexity.
-
 I've checked out some other python2 keyword-only argument emulator code snippets and decided to roll my own just for
 fun and also for the following reasons:
 
@@ -329,6 +327,6 @@ fun and also for the following reasons:
   positional argument list.
 - `The implementation of this solution`__ is brief (~40 lines of logic), simple, and well tested.
 
-.. _decorator_source: https://github.com/pasztorpisti/kwonly-args/blob/master/kwonly_args/__init__.py#L27
+.. _decorator_source: https://github.com/pasztorpisti/kwonly-args/blob/38b64918bccc0ce35a64c3867e5e9802624da599/kwonly_args/__init__.py#L47-L89
 
 __ decorator_source_
