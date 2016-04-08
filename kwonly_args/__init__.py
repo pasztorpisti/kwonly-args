@@ -2,6 +2,7 @@
 
 import functools
 import inspect
+import sys
 
 
 __all__ = ['first_kwonly_arg', 'KWONLY_REQUIRED']
@@ -44,7 +45,8 @@ def first_kwonly_arg(name):
         0 1 2 d1 my_param (3, 4) {}
     """
     def decorate(wrapped):
-        arg_names, varargs, _, defaults = inspect.getargspec(wrapped)
+        getargspec = inspect.getargspec if sys.version_info[0] == 2 else inspect.getfullargspec
+        arg_names, varargs, _, defaults = getargspec(wrapped)[:4]
         if not defaults:
             raise TypeError("You can't use @first_kwonly_arg on a function that doesn't have default arguments!")
 
