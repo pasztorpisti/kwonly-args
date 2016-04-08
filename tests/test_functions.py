@@ -53,6 +53,15 @@ class TestErrors(TestCase):
 
         self.assertRaisesRegexp(TypeError, re.escape("func() missing 1 keyword-only argument(s): a"), func)
 
+    def test_missing_required_kwargs(self):
+        @first_kwonly_arg('a')
+        def func(a=KWONLY_REQUIRED, b=KWONLY_REQUIRED):
+            pass
+
+        self.assertRaisesRegexp(TypeError, re.escape("func() missing 2 keyword-only argument(s): a, b"), func)
+        self.assertRaisesRegexp(TypeError, re.escape("func() missing 1 keyword-only argument(s): b"), func, a=0)
+        self.assertRaisesRegexp(TypeError, re.escape("func() missing 1 keyword-only argument(s): a"), func, b=0)
+
 
 @first_kwonly_arg('d1')
 def func_defaults_only(d0='d0', d1='d1', d2='d2'):
