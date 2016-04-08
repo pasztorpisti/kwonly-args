@@ -1,0 +1,11 @@
+/.eggs/
+/.idea/
+/build/
+/dist/
+/kwonly_args.egg-info/
+
+/.coverage
+/README.html
+
+*.pyc
+*.pyo
