@@ -32,7 +32,8 @@ with codecs.open(os.path.join(script_dir, 'README.rst'), 'r', 'utf8') as f:
 setup(
     name='kwonly-args',
     version=find_version('kwonly_args', '__init__.py'),
-    description='Keyword-only argument support for Python 2 as a decorator. Python 3 compatible.',
+    description='Keyword-only argument emulation for Python 2 as a decorator. Python 3 compatible.',
+    keywords='kwonly keyword only arguments args decorator',
     long_description=long_description,
 
     url='https://github.com/pasztorpisti/kwonly-args',
@@ -45,7 +46,7 @@ setup(
     classifiers=[
         'License :: OSI Approved :: MIT License',
 
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Libraries :: Python Modules',
 
@@ -55,7 +56,6 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
 
-    keywords='kwonly keywordonly keyword-only args kwonlyargs kwonly-args positional',
     packages=['kwonly_args', 'tests'],
 
     test_suite='tests',
