@@ -187,8 +187,5 @@ fun and also for the following reasons:
   keyword-only args through the remaining positional args. It degrades code readability a lot. This is why I decided
   to keep positional arguments of the same type (required/default/kwonly) together in a well defined slice of the
   positional argument list.
-- `The implementation of this solution <decorator source code_>`_ is brief (~40 lines of logic), simple, and well
+- `The implementation of this solution <kwonly_args/__init__.py#L27>`_ is brief (~40 lines of logic), simple, and well
   tested.
-
-
-.. _`decorator source code`: https://github.com/pasztorpisti/kwonly-args/blob/master/kwonly_args/__init__.py#L27
