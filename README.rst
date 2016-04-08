@@ -53,8 +53,8 @@ Installation
 Alternatively you can download the zipped library from https://pypi.python.org/pypi/kwonly-args
 
 
-Code
-----
+Quick-starter
+-------------
 
 With this library you can turn some or all of the default arguments of your function into keyword-only arguments.
 
@@ -135,6 +135,157 @@ You can also decorate class methods (including both old and new style classes):
     two different places (before and after the varargs - eumulated and native python3) in your function arg list to
     specify keyword-only arguments - this is just ugly from a design perspective.
 
+
+Why use keyword-only arguments?
+-------------------------------
+
+You may have an understanding of this topic, if not then let me explain it. Using keyword-only arguments provides the
+following benefits:
+
+
+Code readability
+................
+
+It can make code that calls your function more readable. This is especially true if you have several functions with
+long argument lists like some of the python standard library APIs. For example ``subprocess.Popen()`` has more than
+10 arguments. ``subprocess.Popen()`` is a legacy function from python2 (so it couldn't make use of keyword-only
+arguments despite being a very good candidate for that) but some newer python3 APIs make use of keyword-only
+arguments with a good reason. For example the python3 ``subprocess.run()`` has about 10 arguments but only
+the first ``argv`` argument can be passed as positional, the rest are keyword-only.
+
+.. code-block:: python
+
+    def draw_circle(x, y, radius, filled=False):
+        ...
+
+    def draw_ellipse(x, y, radius_x, radius_y, filled=False):
+        ...
+
+    # 1. calling without using keyword arguments:
+    draw_circle(100, 200, 50, True)
+    draw_ellipse(200, 100, 100, 50)
+
+    # 2. calling using keyword arguments:
+    draw_circle(x=100, y=200, radius=50, filled=True)
+    draw_circle(x=200, y=100, radius_x=100, radius_y=50)
+
+Without keyword-only arguments users of your function will be able to use both of the above conventions. If you
+employ keyword-only arguments then they can use only #2. In case of a simple function like my ``draw_circle()`` it
+may not seem reasonable enough to force keyword-only arguments. But imagine what happens if you start having many
+similar functions like ``draw_ellpise()``, ``draw_rectangle()``, etc.. and you have to read code that calls these
+without keyword arguments with a bunch of listed numbers and bools mixed together as their input... The above
+example in section #1 is relatively lightweight compared to what it can look in real life.
+
+When a function has more than 3-4 arguments (like ``subprocess.Popen()``) I think it is a very good practice to
+allow at most the first few (or none of the) arguments to be passed as positional ones and make the rest kw-only
+(like the standard python3 ``subprocess.run()``).
+It isn't a problem if a function has a lot of parameters (especially default ones) as long as the code that calls
+the function remains readable by using keyword argument passing and you can enforce/guarantee that by making the
+most of the arguments keyword-only:
+
+.. code-block:: python
+
+    import subprocess
+
+    argv = ['ls', '-l']
+
+    # BAD! I think I don't really have to explain why...
+    p = subprocess.Popen(argv, -1, None, subprocess.PIPE, subprocess.PIPE, subprocess.STDOUT, None, True, True)
+
+    # GOOD! And this has the same behavior as the previous call.
+    # I think it is well worth enforcing this form with keyword-only args.
+    p = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+
+    # If the number of passed arguments exceeds my threshold I switch to the following format for readability:
+    p = subprocess.Popen(
+        argv,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        shell=True,
+    )
+
+
+Easier maintenance and refactorization
+......................................
+
+Keyword-only args have an extremely useful property: you can declare them in any order in your function signature and
+the code that calls your function can also pass them in any order.
+Later you can change the order of declaration of your keyword-only arguments for cosmetic and readability reasons
+without affecting behavior and without having to refactor code that calls this function. This comes in handy not only
+in case of code cosmetics but also makes it easier to add new keyword-only args and to remove old ones if necessary.
+Let's review these scenarios with code examples.
+
+Imagine a scenario where you have a ``draw_circle(x, y, radius, outline_color=black, filled=False, fill_color=None)``
+function. It already looks bad enough without keyword-only args. Let's imagine that someone asks you to add an
+`outline_width` argument. Since all parameters can be passed as positional arguments you have to keep backward
+compatibility and you have to append this argument to the end of the current arg list with a default value. This
+introduces another ugly thing: the arguments that belong to the outline aren't adjacent. There will be two unrelated
+args between ``outline_color`` and the newly added ``outline_width``. If these args were keyword-only arguments then
+the arbitrary argument order would allow you to insert the new ``outline_width`` arg right after ``outline_color``.
+
+Another typical and similar scenario is having a function that makes use of 2 or more other functions. For this reason
+it receives input args and passes them through to the two other functions. Let's say you start out with something like
+this at the beginning of your project:
+
+.. code-block:: python
+
+    # lower level workhorse functions used by the higher level ``my_func()``
+    def workhorse1(wh1_1, wh1_2):
+        ...
+
+    def workhorse2(wh2_1, wh2_2):
+        ...
+
+    # And your function looks like this
+    def my_func(wh1_1, wh2_1, wh2_2):
+        # TODO: perhaps manipulate the input args...
+        workhorse1(wh1_1, 8)
+        workhorse2(wh2_1, wh2_2)
+
+
+Then for some reason someone introduces a new ``wh1_3`` parameter for ``workhorse1()`` and you have to pass it through
+your higher level ``my_func()``. It will look like this:
+
+.. code-block:: python
+
+    # One arg for wh1, then two args for wh2 and then another arg for wh1... Nice.
+    def my_func(wh1_1, wh2_1, wh2_2, wh1_3):
+        # TODO: perhaps manipulate the input args...
+        workhorse1(wh1_1, 8)
+        workhorse2(wh2_1, wh2_2)
+
+
+In python you can avoid such scenarios by passing such arguments in ``**kwargs`` or in separate dictionaries but it
+often makes the code less explicit and readable:
+
+.. code-block:: python
+
+    # It is more difficult to find out what's going on with ``*args``
+    # and ``**kwargs`` then with explicitly named arguments.
+    def my_func(**kwargs):
+        # Let the workhorses to cherry pick the parameters they
+        # need and ignore the rest that they don't need.
+        workhorse1(**kwargs)
+        workhorse2(**kwargs)
+
+
+You can also use two separate dictionaries or data objects to pass the arguments to the workhorses. This technique
+is better than keyword only argument passing when the workhorses have a lot of parameters and/or you have to pass
+the arguments deeply through several calls but this solution is an an overkill in many simpler situations where the
+number of parameters isn't too high and there is no deep arg passing:
+
+.. code-block:: python
+
+    def my_func(wh1_args, wh2_args):
+        # TODO: perhaps manipulate the input args...
+        workhorse1(wh1_args)
+        workhorse2(wh2_args)
+
+
+With keyword-only arguments the above problems don't exist. The new `wh1_3` argument can be placed anywhere in the
+keyword-only argument part of the argument list (e.g.: after ``wh1_1``) without affecting the rest of the code that
+already calls this functions with other keyword-only args (given that they don't want to use the newly added arg).
 
 --------------
 Implementation
