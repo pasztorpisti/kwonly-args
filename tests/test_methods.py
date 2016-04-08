@@ -13,13 +13,13 @@ class MyClass:
     def my_instance_method(self, a0, a1, d0='d0', d1='d1', d2='d2', *args):
         test_log(m_self=self, a0=a0, a1=a1, d0=d0, d1=d1, d2=d2, args=args)
 
-    # You have to put @first_kwonly_arg after @classmethod!
+    # You have to apply @first_kwonly_arg before @classmethod!
     @classmethod
     @first_kwonly_arg('d1')
     def my_class_method(cls, a0, a1, d0='d0', d1='d1', d2='d2', *args):
         test_log(m_cls=cls, a0=a0, a1=a1, d0=d0, d1=d1, d2=d2, args=args)
 
-    # You have to put @first_kwonly_arg after @staticmethod!
+    # You have to apply @first_kwonly_arg before @staticmethod!
     @staticmethod
     @first_kwonly_arg('d1')
     def my_static_method(a0, a1, d0='d0', d1='d1', d2='d2', *args):
