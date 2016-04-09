@@ -122,11 +122,32 @@ You can also decorate class methods (including both old and new style classes):
             ...
 
 
+If you want to turn all default arguments into keyword-only arguments then the following convenience API may be useful
+and more convenient:
+
+.. code-block:: python
+
+    from kwonly_args import first_kwonly_arg, FIRST_DEFAULT_ARG, kwonly_defaults
+
+
+    # The FIRST_DEFAULT_ARG constant automatically selects the first default
+    # argument (default0) so it turns all default arguments into keyword-only.
+    @first_kwonly_arg(FIRST_DEFAULT_ARG)
+    def func(arg0, arg1, default0='d0', default1='d1', *args):
+        ...
+
+
+    # As an equivalent shortcut you can use @kwonly_defaults.
+    @kwonly_defaults
+    def func(arg0, arg1, default0='d0', default1='d1', *args):
+        ...
+
+
 Why use keyword-only arguments?
 -------------------------------
 
-You may have an understanding of this topic, if not then let me explain it. Using keyword-only arguments provides the
-following benefits:
+You may have an understanding of this topic. If not then read along.
+Using keyword-only arguments provides the following benefits:
 
 
 Code readability
@@ -276,6 +297,7 @@ With keyword-only arguments the above problems don't exist. The new `wh1_3` argu
 keyword-only argument part of the argument list (e.g.: after ``wh1_1``) without affecting the rest of the code that
 already calls this functions with other keyword-only args (given that they don't want to use the newly added arg).
 
+
 --------------
 Implementation
 --------------
@@ -284,14 +306,14 @@ Implementation
 Python 2 function signature anatomy
 -----------------------------------
 
-A python2 function argument list consists of the following optional parts. Any optional parts that are present in
+A python2 function signature consists of the following optional parts. Any optional parts that are present in
 a function signature appear in the listed order:
 
 1.  Positional arguments
 
     1.  Required arguments (positional arguments without default value)
     2.  Default arguments (positional arguments with default value)
-    3.  **Keyword-only arguments (this is available only when you use this library)**
+    3.  **Keyword-only arguments (non-standard, emulated/provided by this library)**
 
 2.  VarArgs (``*args``)
 3.  VarKWArgs (``**kwargs``)
@@ -305,6 +327,70 @@ signatures into 3 parts instead of the standard 2.
 In python3 the keyword-only arguments reside between VarArgs and VarKWArgs but in python2 you can't put anything
 between those (it would be a syntax error) so your best bet to emulate keyword-only arguments is turning some of your
 positional arguments into keyword-only args.
+
+
+Emulated keyword-only args VS static analyzers
+..............................................
+
+As discussed previously unfortunately we can declare our emulated python2 keyword-only arguments only before the
+VarArgs (``*args``) of the function. This means that our signature can have positional arguments not only before our
+keyword-only args, but also after them (because VarArgs are positional). This may lead to false-positive
+warnings/errors with static analyzers in the following case:
+
+If you have a function with both keyword-only arguments and VarArgs then static analyzers may treat some
+of the calls to this function suspicious (resulting in a false positive warning/error).
+
+.. code-block::
+
+    @first_kwonly_arg('ko0')
+    def func(a0, d0=-1, ko0=-1, ko1=-1, *args):
+        ...
+
+
+    # No problem: a0=0
+    func(0)
+
+    # No problem: a0=0, d0=1
+    func(0, 1)
+
+    # No problem: a0=0 d0=1 args=(2,)
+    func(0, 1, 2)
+
+    # The static analyzer will probably treat this as an error. It thinks that
+    # you pass both the positional argument 2 and ko0=3 to the ko0 arg of the
+    # function because it can't track down the magic done by the @first_kwonly_arg
+    # decorator and binds the passed parameters to the function args using standard
+    # python2 rules. If func() didn't have our @first_kwonly_arg decorator then
+    # this function call would probably cause an error like:
+    # TypeError: func() got multiple values for argument 'ko0'
+    #
+    # However what actually happens as a result of the magic done by the
+    # decorator is: a0=0 d0=1 ko0=3 ko1=-1 args=(2,)
+    # The decorator ensures that positional parameters passed by function calls
+    # are bound only to positional non-keyword-only arguments and the VarArgs
+    # of the function.
+    func(0, 1, 2, ko0=3)
+
+    # No problem despite the fact that the static analyzer probably assumes
+    # something different than what actually happens. According to standard
+    # python2 arg binding rules the static analyzer probably thinks that:
+    # a0=0 d0=1 ko0=2 ko1=3 args=()
+    #
+    # However the actual outcome caused by our decorator is:
+    # a0=0 d0=1 ko0=-1 ko1=3 args=(2,)
+    func(0, 1, 2, ko1=3)
+
+
+Despite the above issue a decorator like this can still be very useful. The reason for this is that for me it happens
+quite rarely that in a function I need both keyword-only arguments and VarArgs. I need VarArgs quite rarely in general
+while keyword-only arguments come in handy quite often. If this is the same for you then go on using this decorator in
+your python2 projects and in the rare cases where you need both keyword-only arguments and VarArgs use one of the
+following workarounds to aid this issue:
+
+- Don't use a static analyzer. (Well, this was only a joke. :-D)
+- In your static analyzer tool or service ignore the individual instances of these false positive warnings.
+- Use `Poor man's python2 keyword-only arguments`_ with these problematic cases instead of decorating them and use the
+  decorator only with the rest (probably the majority) of the functions that don't have VarArgs.
 
 
 Why does this "library" exist?
@@ -327,6 +413,45 @@ fun and also for the following reasons:
   positional argument list.
 - `The implementation of this solution`__ is brief (~40 lines of logic), simple, and well tested.
 
-.. _decorator_source: https://github.com/pasztorpisti/kwonly-args/blob/38b64918bccc0ce35a64c3867e5e9802624da599/kwonly_args/__init__.py#L47-L89
+.. _decorator_source: https://github.com/pasztorpisti/kwonly-args/blob/fa4cb674c9235a68642687deb272a25e257f49df/kwonly_args/__init__.py#L70-L111
 
 __ decorator_source_
+
+
+Poor man's python2 keyword-only arguments
+-----------------------------------------
+
+I really like the benefits brought by keyword-only arguments. Long ago before extensively working with python I've
+already forged some coding-convention rules that have similar advantages (unordered arguments, specifying arg names
+while calling the function for readability) in other languages (e.g.: C/C++). Before thinking about using a python2
+solution like the one provided by this library I've used a "manually implemented poor man's python2 keyword-only args"
+solution like this:
+
+.. code-block:: python
+
+    def func(arg0, arg1, default0='d0', default1='d1', **kwargs):
+        # Keyword-only arg with a default value:
+        optional_kwonly0 = kwargs.pop('kwonly0', 'ko0')
+        # Required keyword-only arg:
+        required_kwonly1 = kwargs.pop('kwonly1')
+
+        # Checking whether the caller has passed an unexpected keyword argument.
+        # Sometimes passing an unexpected keyword argument is simply the result
+        # of a typo in the name of an expected arg. E.g.: kwnly0 instead of kwonly0
+        check_no_kwargs_left(func, kwargs)
+
+        # ... the rest of the function body
+
+
+    # utility function far away somewhere in a central place...
+    def check_no_kwargs_left(func_or_func_name, kwargs):
+        if not kwargs:
+            return
+        func_name = func_or_func_name.__name__ if callable(func_or_func_name) else func_or_func_name
+        arg_names = ', '.join(repr(k) for k in sorted(kwargs.keys()))
+        raise TypeError('{func_name}() got unexpected keyword argument(s): {arg_names}'.format(
+                        func_name=func_name, arg_names=arg_names))
+
+
+While I think the above solution if fairly good it still requires checking the function body too in order to see the
+full signature and sometimes people may forget to check for leftover kwargs after popping the kwonly args.
