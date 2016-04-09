@@ -5,7 +5,7 @@ import inspect
 import sys
 
 
-__all__ = ['first_kwonly_arg', 'KWONLY_REQUIRED']
+__all__ = ['first_kwonly_arg', 'KWONLY_REQUIRED', 'FIRST_DEFAULT_ARG', 'kwonly_defaults']
 
 # version_info[0]: Increase in case of large milestones/releases.
 # version_info[1]: Increase this and zero out version_info[2] if you have explicitly modified
@@ -23,6 +23,7 @@ __license__ = 'MIT'
 
 
 KWONLY_REQUIRED = ('KWONLY_REQUIRED',)
+FIRST_DEFAULT_ARG = ('FIRST_DEFAULT_ARG',)
 
 
 def first_kwonly_arg(name):
@@ -33,6 +34,12 @@ def first_kwonly_arg(name):
     :param name: The name of the first default argument to be treated as a keyword-only argument. This default
     argument along with all default arguments that follow this one will be treated as keyword only arguments.
 
+    You can also pass here the ``FIRST_DEFAULT_ARG`` constant in order to select the first default argument. This
+    way you turn all default arguments into keyword-only arguments. As a shortcut you can use the
+    ``@kwonly_defaults`` decorator (without any parameters) instead of ``@first_kwonly_arg(FIRST_DEFAULT_ARG)``.
+
+        >>> from kwonly_args import first_kwonly_arg, KWONLY_REQUIRED, FIRST_DEFAULT_ARG, kwonly_defaults
+        >>>
         >>> # this decoration converts the ``d1`` and ``d2`` default args into kwonly args
         >>> @first_kwonly_arg('d1')
         >>> def func(a0, a1, d0='d0', d1='d1', d2='d2', *args, **kwargs):
@@ -43,20 +50,36 @@ def first_kwonly_arg(name):
         >>>
         >>> func(0, 1, 2, 3, 4, d2='my_param')
         0 1 2 d1 my_param (3, 4) {}
+        >>>
+        >>> # d0 is an optional deyword argument, d1 is required
+        >>> def func(d0='d0', d1=KWONLY_REQUIRED):
+        >>>     print(d0, d1)
+        >>>
+        >>> # The ``FIRST_DEFAULT_ARG`` constant automatically selects the first default argument so it
+        >>> # turns all default arguments into keyword-only ones. Both d0 and d1 are keyword-only arguments.
+        >>> @first_kwonly_arg(FIRST_DEFAULT_ARG)
+        >>> def func(a0, a1, d0='d0', d1='d1'):
+        >>>     print(a0, a1, d0, d1)
+        >>>
+        >>> # ``@kwonly_defaults`` is a shortcut for the ``@first_kwonly_arg(FIRST_DEFAULT_ARG)``
+        >>> # in the previous example. This example has the same effect as the previous one.
+        >>> @kwonly_defaults
+        >>> def func(a0, a1, d0='d0', d1='d1'):
+        >>>     print(a0, a1, d0, d1)
     """
     def decorate(wrapped):
         getargspec = inspect.getargspec if sys.version_info[0] == 2 else inspect.getfullargspec
         arg_names, varargs, _, defaults = getargspec(wrapped)[:4]
         if not defaults:
             raise TypeError("You can't use @first_kwonly_arg on a function that doesn't have default arguments!")
+        first_default_index = len(arg_names) - len(defaults)
 
         try:
-            first_kwonly_index = arg_names.index(name)
+            first_kwonly_index = first_default_index if name is FIRST_DEFAULT_ARG else arg_names.index(name)
         except ValueError:
             raise ValueError("{}() doesn't have an argument with the specified first_kwonly_arg={!r} name"
                              .format(getattr(wrapped, '__name__', '?'), name))
 
-        first_default_index = len(arg_names) - len(defaults)
         if first_kwonly_index < first_default_index:
             raise ValueError("The specified first_kwonly_arg={!r} must have a default value!".format(name))
 
@@ -87,3 +110,6 @@ def first_kwonly_arg(name):
 
         return wrapper
     return decorate
+
+
+kwonly_defaults = first_kwonly_arg(FIRST_DEFAULT_ARG)
