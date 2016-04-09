@@ -343,7 +343,7 @@ warnings/errors with static analyzers in the following case:
 If you have a function with both keyword-only arguments and VarArgs then static analyzers may treat some
 of the calls to this function suspicious (resulting in a false positive warning/error).
 
-.. code-block::
+.. code-block:: python
 
     @first_kwonly_arg('ko0')
     def func(a0, d0=-1, ko0=-1, ko1=-1, *args):
