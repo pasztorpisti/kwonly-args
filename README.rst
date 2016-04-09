@@ -32,7 +32,10 @@ kwonly-args
     :alt: license: MIT
 
 
-This library emulates the python3 keyword-only arguments under python2. The resulting code is python3 compatible.
+Providing keyword-only argument emulation for python2. The resulting code is python3 compatible.
+
+You have to read only the short Usage_ section of the document to get started, the rest is optional for curious people and
+bored time billionaires.
 
 
 .. contents::
@@ -53,8 +56,8 @@ Installation
 Alternatively you can download the zipped library from https://pypi.python.org/pypi/kwonly-args
 
 
-Quick-starter
--------------
+Brief how-to with code examples
+-------------------------------
 
 With this library you can turn some or all of the default arguments of your function into keyword-only arguments.
 
@@ -122,8 +125,7 @@ You can also decorate class methods (including both old and new style classes):
             ...
 
 
-If you want to turn all default arguments into keyword-only arguments then the following convenience API may be useful
-and more convenient:
+If you want to turn all default arguments into keyword-only arguments then the following convenience API may be useful:
 
 .. code-block:: python
 
@@ -143,15 +145,16 @@ and more convenient:
         ...
 
 
-Why use keyword-only arguments?
--------------------------------
+--------------------------------------------------
+Code style/design: why use keyword-only arguments?
+--------------------------------------------------
 
 You may have an understanding of this topic. If not then read along.
 Using keyword-only arguments provides the following benefits:
 
 
 Code readability
-................
+----------------
 
 It can make code that calls your function more readable. This is especially true if you have several functions with
 long argument lists like some of the python standard library APIs. For example ``subprocess.Popen()`` has more than
@@ -217,7 +220,7 @@ most of the arguments keyword-only:
 
 
 Easier maintenance and refactorization
-......................................
+--------------------------------------
 
 Keyword-only args have an extremely useful property: you can declare them in any order in your function signature and
 the code that calls your function can also pass them in any order.
@@ -298,9 +301,9 @@ keyword-only argument part of the argument list (e.g.: after ``wh1_1``) without 
 already calls this functions with other keyword-only args (given that they don't want to use the newly added arg).
 
 
---------------
-Implementation
---------------
+----------------------
+Implementation details
+----------------------
 
 
 Python 2 function signature anatomy
@@ -387,35 +390,10 @@ while keyword-only arguments come in handy quite often. If this is the same for 
 your python2 projects and in the rare cases where you need both keyword-only arguments and VarArgs use one of the
 following workarounds to aid this issue:
 
-- Don't use a static analyzer. (Well, this was only a joke. :-D)
+- Static analyzers are stupid! Don't use them! (Well, this was only a joke. :-D)
 - In your static analyzer tool or service ignore the individual instances of these false positive warnings.
 - Use `Poor man's python2 keyword-only arguments`_ with these problematic cases instead of decorating them and use the
   decorator only with the rest (probably the majority) of the functions that don't have VarArgs.
-
-
-Why does this "library" exist?
-------------------------------
-
-I've checked out some other python2 keyword-only argument emulator code snippets and decided to roll my own just for
-fun and also for the following reasons:
-
-- Some of those implementations provide you with a decorator with which you have to specify your keyword-only arguments
-  with their (usually zero based) index in the arg list of the function. This is error prone, I never liked the
-  idea of identifying arguments with indexes. The only minor disadvantage of using arg names instead of arg indexes
-  is that using arg names requires direct access to the signature of the *original* wrapped function.
-  If there are other decorators between our decorator and the original function then under python2 using names isn't
-  really possible (because ``functools.update_wrapper()`` and decorators in general don't have/support the
-  ``__wrapped__`` attribute to maintain a chain back to the originally wrapped function).
-- Some implementations allow you to pick an arbitrary set of positional arguments by specifying their indexes or names.
-  I don't like the idea of promoting arbitrary positional arguments into keyword-only arguments by scattering
-  keyword-only args through the remaining positional args. It degrades code readability a lot. This is why I decided
-  to keep positional arguments of the same type (required/default/kwonly) together in a well defined slice of the
-  positional argument list.
-- `The implementation of this solution`__ is brief (~40 lines of logic), simple, and well tested.
-
-.. _decorator_source: https://github.com/pasztorpisti/kwonly-args/blob/fa4cb674c9235a68642687deb272a25e257f49df/kwonly_args/__init__.py#L70-L111
-
-__ decorator_source_
 
 
 Poor man's python2 keyword-only arguments
@@ -455,3 +433,29 @@ solution like this:
 
 While I think the above solution if fairly good it still requires checking the function body too in order to see the
 full signature and sometimes people may forget to check for leftover kwargs after popping the kwonly args.
+
+
+------------------------------
+Why does this "library" exist?
+------------------------------
+
+I've checked out some other python2 keyword-only argument emulator code snippets and decided to roll my own just for
+fun and also for the following reasons:
+
+- Some of those implementations provide you with a decorator with which you have to specify your keyword-only arguments
+  with their (usually zero based) index in the arg list of the function. This is error prone, I never liked the
+  idea of identifying arguments with indexes. The only minor disadvantage of using arg names instead of arg indexes
+  is that using arg names requires direct access to the signature of the *original* wrapped function.
+  If there are other decorators between our decorator and the original function then under python2 using names isn't
+  really possible (because ``functools.update_wrapper()`` and decorators in general don't have/support the
+  ``__wrapped__`` attribute to maintain a chain back to the originally wrapped function).
+- Some implementations allow you to pick an arbitrary set of positional arguments by specifying their indexes or names.
+  I don't like the idea of promoting arbitrary positional arguments into keyword-only arguments by scattering
+  keyword-only args through the remaining positional args. It degrades code readability a lot. This is why I decided
+  to keep positional arguments of the same type (required/default/kwonly) together in a well defined slice of the
+  positional argument list.
+- `The implementation of this solution`__ is brief (~40 lines of logic), simple, and well tested.
+
+.. _decorator_source: https://github.com/pasztorpisti/kwonly-args/blob/fa4cb674c9235a68642687deb272a25e257f49df/kwonly_args/__init__.py#L70-L111
+
+__ decorator_source_
