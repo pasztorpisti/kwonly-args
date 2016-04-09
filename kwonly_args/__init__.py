@@ -99,9 +99,8 @@ def first_kwonly_arg(name):
             if len(args) > first_kwonly_index:
                 if varargs is None:
                     raise TypeError(
-                        "{func_name}() takes {exactly_or_at_least} {expected_args} arguments ({actual_args} given)"
+                        "{func_name}() takes exactly {expected_args} arguments ({actual_args} given)"
                         .format(func_name=getattr(wrapper, '__name__', '?'),
-                                exactly_or_at_least='exactly' if varargs is None else 'at least',
                                 expected_args=first_kwonly_index, actual_args=len(args)))
                 kwonly_args_from_kwargs = tuple(kwargs.pop(arg, default) for arg, default in kwonly_args)
                 args = args[:first_kwonly_index] + kwonly_args_from_kwargs + args[first_kwonly_index:]
