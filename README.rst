@@ -79,7 +79,7 @@ has ``*args`` or something like that.
     # They are no longer handled as positional arguments.
     @first_kwonly_arg('default1')
     def func(arg0, arg1, default0='d0', default1='d1', default2='d2', *args):
-        print('arg0={} arg1={} default0={} default1={} default2={} args={}'.format(
+        print('arg0=%s arg1=%s default0=%s default1=%s default2=%s args=%s' % (
               arg0, arg1, default0, default1, default2, args))
 
 
@@ -427,8 +427,7 @@ solution like this:
             return
         func_name = func_or_func_name.__name__ if callable(func_or_func_name) else func_or_func_name
         arg_names = ', '.join(repr(k) for k in sorted(kwargs.keys()))
-        raise TypeError('{func_name}() got unexpected keyword argument(s): {arg_names}'.format(
-                        func_name=func_name, arg_names=arg_names))
+        raise TypeError('%s() got unexpected keyword argument(s): %s' % (func_name, arg_names))
 
 
 While I think the above solution if fairly good it still requires checking the function body too in order to see the
@@ -456,6 +455,6 @@ fun and also for the following reasons:
   positional argument list.
 - `The implementation of this solution`__ is brief (~40 lines of logic), simple, and well tested.
 
-.. _decorator_source: https://github.com/pasztorpisti/kwonly-args/blob/513e0485839957158ed6e9f41d224d93de0b3812/kwonly_args/__init__.py#L70-L110
+.. _decorator_source: https://github.com/pasztorpisti/kwonly-args/blob/2f1158503fdfc49f1f028d514569557da1a71038/kwonly_args/__init__.py#L82-L124
 
 __ decorator_source_
