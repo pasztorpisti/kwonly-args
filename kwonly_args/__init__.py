@@ -1,8 +1,20 @@
 # -*- coding: utf-8 -*-
 
-import functools
 import inspect
 import sys
+
+# The @decorator syntax is available since python2.4 and we support even this old version. Unfortunately functools
+# has been introduced only in python2.5 so we have to emulate functools.update_wrapper() under python2.4.
+try:
+    from functools import update_wrapper
+except ImportError:
+    def update_wrapper(wrapper, wrapped):
+        for attr_name in ('__module__', '__name__', '__doc__'):
+            attr_value = getattr(wrapped, attr_name, None)
+            if attr_value is not None:
+                setattr(wrapper, attr_name, attr_value)
+        wrapper.__dict__.update(getattr(wrapped, '__dict__', {}))
+        return wrapper
 
 
 __all__ = ['first_kwonly_arg', 'KWONLY_REQUIRED', 'FIRST_DEFAULT_ARG', 'kwonly_defaults']
@@ -68,46 +80,48 @@ def first_kwonly_arg(name):
         >>>     print(a0, a1, d0, d1)
     """
     def decorate(wrapped):
-        getargspec = inspect.getargspec if sys.version_info[0] == 2 else inspect.getfullargspec
-        arg_names, varargs, _, defaults = getargspec(wrapped)[:4]
+        if sys.version_info[0] == 2:
+            arg_names, varargs, _, defaults = inspect.getargspec(wrapped)
+        else:
+            arg_names, varargs, _, defaults = inspect.getfullargspec(wrapped)[:4]
+
         if not defaults:
             raise TypeError("You can't use @first_kwonly_arg on a function that doesn't have default arguments!")
         first_default_index = len(arg_names) - len(defaults)
 
         try:
-            first_kwonly_index = first_default_index if name is FIRST_DEFAULT_ARG else arg_names.index(name)
+            if name is FIRST_DEFAULT_ARG:
+                first_kwonly_index = first_default_index
+            else:
+                first_kwonly_index = arg_names.index(name)
         except ValueError:
-            raise ValueError("{}() doesn't have an argument with the specified first_kwonly_arg={!r} name"
-                             .format(getattr(wrapped, '__name__', '?'), name))
+            raise ValueError("%s() doesn't have an argument with the specified first_kwonly_arg=%r name" % (
+                             getattr(wrapped, '__name__', '?'), name))
 
         if first_kwonly_index < first_default_index:
-            raise ValueError("The specified first_kwonly_arg={!r} must have a default value!".format(name))
+            raise ValueError("The specified first_kwonly_arg=%r must have a default value!" % (name,))
 
         kwonly_defaults = defaults[-(len(arg_names)-first_kwonly_index):]
         kwonly_args = tuple(zip(arg_names[first_kwonly_index:], kwonly_defaults))
         required_kwonly_args = frozenset(arg for arg, default in kwonly_args if default is KWONLY_REQUIRED)
 
-        @functools.wraps(wrapped)
         def wrapper(*args, **kwargs):
             if required_kwonly_args:
                 missing_kwonly_args = required_kwonly_args.difference(kwargs.keys())
                 if missing_kwonly_args:
-                    raise TypeError("{func_name}() missing {count} keyword-only argument(s): {args}".format(
-                                    func_name=getattr(wrapper, '__name__', '?'),
-                                    count=len(missing_kwonly_args),
-                                    args=', '.join(sorted(missing_kwonly_args))))
+                    raise TypeError("%s() missing %s keyword-only argument(s): %s" % (
+                                    getattr(wrapped, '__name__', '?'), len(missing_kwonly_args),
+                                    ', '.join(sorted(missing_kwonly_args))))
             if len(args) > first_kwonly_index:
                 if varargs is None:
-                    raise TypeError(
-                        "{func_name}() takes exactly {expected_args} arguments ({actual_args} given)"
-                        .format(func_name=getattr(wrapper, '__name__', '?'),
-                                expected_args=first_kwonly_index, actual_args=len(args)))
+                    raise TypeError("%s() takes exactly %s arguments (%s given)" % (
+                                    getattr(wrapped, '__name__', '?'), first_kwonly_index, len(args)))
                 kwonly_args_from_kwargs = tuple(kwargs.pop(arg, default) for arg, default in kwonly_args)
                 args = args[:first_kwonly_index] + kwonly_args_from_kwargs + args[first_kwonly_index:]
 
             return wrapped(*args, **kwargs)
 
-        return wrapper
+        return update_wrapper(wrapper, wrapped)
     return decorate
 
 
