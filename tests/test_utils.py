@@ -20,7 +20,8 @@ class TestUpdateWrapper(TestCase):
         self.assertEqual(getattr(src, 'my_attrib', None), 'my_attrib')
         self.assertFalse(hasattr(dest, 'my_attrib'))
 
-        update_wrapper(dest, src)
+        result = update_wrapper(dest, src)
+        self.assertIs(result, dest)
 
         self.assertEqual(dest.__name__, 'src')
         self.assertEqual(dest.__doc__, ' src doc ')
