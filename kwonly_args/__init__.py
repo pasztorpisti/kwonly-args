@@ -8,13 +8,7 @@ import sys
 try:
     from functools import update_wrapper
 except ImportError:
-    def update_wrapper(wrapper, wrapped):
-        for attr_name in ('__module__', '__name__', '__doc__'):
-            attr_value = getattr(wrapped, attr_name, None)
-            if attr_value is not None:
-                setattr(wrapper, attr_name, attr_value)
-        wrapper.__dict__.update(getattr(wrapped, '__dict__', {}))
-        return wrapper
+    from kwonly_args.utils import update_wrapper
 
 
 __all__ = ['first_kwonly_arg', 'KWONLY_REQUIRED', 'FIRST_DEFAULT_ARG', 'kwonly_defaults']
