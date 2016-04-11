@@ -455,6 +455,6 @@ fun and also for the following reasons:
   positional argument list.
 - `The implementation of this solution`__ is brief (~40 lines of logic), simple, and well tested.
 
-.. _decorator_source: https://github.com/pasztorpisti/kwonly-args/blob/00f96ab40a6321ff7f984894971a400307ee76d5/kwonly_args/__init__.py#L76-L118
+.. _decorator_source: https://github.com/pasztorpisti/kwonly-args/blob/d92ba8d00647d2d19ad4c668276ae1444c266a8a/kwonly_args/__init__.py#L76-L118
 
 __ decorator_source_
