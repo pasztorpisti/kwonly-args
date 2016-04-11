@@ -83,14 +83,14 @@ def first_kwonly_arg(name):
             raise TypeError("You can't use @first_kwonly_arg on a function that doesn't have default arguments!")
         first_default_index = len(arg_names) - len(defaults)
 
-        try:
-            if name is FIRST_DEFAULT_ARG:
-                first_kwonly_index = first_default_index
-            else:
+        if name is FIRST_DEFAULT_ARG:
+            first_kwonly_index = first_default_index
+        else:
+            try:
                 first_kwonly_index = arg_names.index(name)
-        except ValueError:
-            raise ValueError("%s() doesn't have an argument with the specified first_kwonly_arg=%r name" % (
-                             getattr(wrapped, '__name__', '?'), name))
+            except ValueError:
+                raise ValueError("%s() doesn't have an argument with the specified first_kwonly_arg=%r name" % (
+                                 getattr(wrapped, '__name__', '?'), name))
 
         if first_kwonly_index < first_default_index:
             raise ValueError("The specified first_kwonly_arg=%r must have a default value!" % (name,))
