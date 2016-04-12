@@ -22,7 +22,7 @@ __all__ = ['first_kwonly_arg', 'KWONLY_REQUIRED', 'FIRST_DEFAULT_ARG', 'kwonly_d
 #                  case increase only version_info[2].
 # version_info[2]: Increase in case of bugfixes. Also use this if you added new features
 #                  without modifying the behavior of the previously existing ones.
-version_info = (1, 0, 9)
+version_info = (1, 0, 10)
 __version__ = '.'.join(str(n) for n in version_info)
 __author__ = 'István Pásztor'
 __license__ = 'MIT'
