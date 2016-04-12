@@ -3,7 +3,7 @@
 import os
 import re
 import codecs
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +31,7 @@ with codecs.open(os.path.join(script_dir, 'README.rst'), 'r', 'utf8') as f:
 
 setup(
     name='kwonly-args',
-    version=find_version('kwonly_args', '__init__.py'),
+    version=find_version('src', 'kwonly_args', '__init__.py'),
     description='Python2 keyword-only argument emulation as a decorator. Python 3 compatible.',
     keywords='kwonly keyword only arguments args decorator',
     long_description=long_description,
@@ -56,7 +56,8 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
 
-    packages=['kwonly_args', 'tests'],
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
 
     test_suite='tests',
     tests_require=['mock'],

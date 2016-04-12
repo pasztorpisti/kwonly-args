@@ -2,11 +2,10 @@
 /.idea/
 /build/
 /dist/
-/kwonly_args.egg-info/
+/src/kwonly_args.egg-info/
 
 /.python-version
 /.coverage
 /README.html
 
-*.pyc
-*.pyo
+*.py[cod]
