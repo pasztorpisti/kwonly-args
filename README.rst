@@ -53,7 +53,10 @@ Installation
 
     pip install kwonly-args
 
-Alternatively you can download the zipped library from https://pypi.python.org/pypi/kwonly-args
+Alternatively you can download the distribution from the following places:
+
+- https://pypi.python.org/pypi/kwonly-args#downloads
+- https://github.com/pasztorpisti/kwonly-args/releases
 
 
 Brief how-to with code examples
