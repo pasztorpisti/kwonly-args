@@ -2,6 +2,8 @@
 kwonly-args
 ===========
 
+Keyword-only argument emulation for python2 as a decorator. Python3 compatible.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. image:: https://img.shields.io/travis/pasztorpisti/kwonly-args.svg?style=flat
     :target: https://travis-ci.org/pasztorpisti/kwonly-args
@@ -32,8 +34,6 @@ kwonly-args
     :alt: license: MIT
 
 
-Providing keyword-only argument emulation for python2. The resulting code is python3 compatible.
-
 You have to read only the short Usage_ section of the document to get started, the rest is optional for curious people and
 bored time billionaires.
 
@@ -41,9 +41,8 @@ bored time billionaires.
 .. contents::
 
 
------
 Usage
------
+=====
 
 
 Installation
@@ -148,9 +147,8 @@ If you want to turn all default arguments into keyword-only arguments then the f
         ...
 
 
---------------------------------------------------
 Code style/design: why use keyword-only arguments?
---------------------------------------------------
+==================================================
 
 You may have an understanding of this topic. If not then read along.
 Using keyword-only arguments provides the following benefits:
@@ -304,9 +302,8 @@ keyword-only argument part of the argument list (e.g.: after ``wh1_1``) without 
 already calls this functions with other keyword-only args (given that they don't want to use the newly added arg).
 
 
-----------------------
 Implementation details
-----------------------
+======================
 
 
 Python 2 function signature anatomy
@@ -437,9 +434,8 @@ While I think the above solution if fairly good it still requires checking the f
 full signature and sometimes people may forget to check for leftover kwargs after popping the kwonly args.
 
 
-------------------------------
 Why does this "library" exist?
-------------------------------
+==============================
 
 I've checked out some other python2 keyword-only argument emulator code snippets and decided to roll my own just for
 fun and also for the following reasons:
