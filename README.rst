@@ -74,31 +74,26 @@ has ``*args`` or something like that.
 
 .. code-block:: python
 
-    from kwonly_args import first_kwonly_arg, KWONLY_REQUIRED
-
-
-    # This turns default1 and default2 into keyword-only arguments.
-    # They are no longer handled as positional arguments.
-    @first_kwonly_arg('default1')
-    def func(arg0, arg1, default0='d0', default1='d1', default2='d2', *args):
-        print('arg0=%s arg1=%s default0=%s default1=%s default2=%s args=%s' % (
-              arg0, arg1, default0, default1, default2, args))
-
-
-    func(0, 1, 2, 3, 4)
-    # Output:
-    # arg0=0 arg1=1 default0=2 default1=d1 default=d2 args=(3, 4)
-
-    # The default1 and default2 args can be passed only as keyword arguments:
-    func(0, 1, 2, 3, 4, default1='kwonly_param')
-    # Output:
-    # arg0=0 arg1=1 default0=2 default1=kwonly_param default=d2 args=(3, 4)
-
-
-    # In this example all three args are keyword-only args and default1 is required.
-    @first_kwonly_arg('default0')
-    def func2(default0='d0', default1=KWONLY_REQUIRED, default2='d2'):
-        ...
+    >>> from kwonly_args import first_kwonly_arg, KWONLY_REQUIRED
+    >>>
+    >>> # This turns default1 and default2 into keyword-only arguments.
+    >>> # They are no longer handled as positional arguments.
+    >>> @first_kwonly_arg('default1')
+    >>> def func(arg0, arg1, default0='d0', default1='d1', default2='d2', *args):
+    >>>     print('arg0=%s arg1=%s default0=%s default1=%s default2=%s args=%s' % (
+    >>>           arg0, arg1, default0, default1, default2, args))
+    >>>
+    >>> func(0, 1, 2, 3, 4)
+    arg0=0 arg1=1 default0=2 default1=d1 default=d2 args=(3, 4)
+    >>>
+    >>> # The default1 and default2 args can be passed only as keyword arguments:
+    >>> func(0, 1, 2, 3, 4, default1='kwonly_param')
+    arg0=0 arg1=1 default0=2 default1=kwonly_param default=d2 args=(3, 4)
+    >>>
+    >>> # In this example all three args are keyword-only args and default1 is required.
+    >>> @first_kwonly_arg('default0')
+    >>> def func2(default0='d0', default1=KWONLY_REQUIRED, default2='d2'):
+    >>>     ...
 
 
 You can also decorate class methods (including both old and new style classes):
