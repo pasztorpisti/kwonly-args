@@ -445,7 +445,7 @@ fun and also for the following reasons:
 - Some implementations allow you to pick an arbitrary set of positional arguments by specifying their indexes or names.
   I don't like the idea of promoting arbitrary positional arguments into keyword-only arguments by scattering
   keyword-only args through the remaining positional args. It degrades code readability a lot. This is why I decided
-  to keep positional arguments of the same type (required/default/kwonly) together in a well defined slice of the
+  to keep positional arguments of the same type (required/default/kwonly) together in well defined slices of the
   positional argument list.
 - `The implementation of this solution`__ is brief (~40 lines of logic), simple, and well tested.
 
