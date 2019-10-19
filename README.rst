@@ -9,13 +9,9 @@ Keyword-only argument emulation for python2 as a decorator. Python3 compatible.
     :target: https://travis-ci.org/pasztorpisti/kwonly-args
     :alt: build
 
-.. image:: https://img.shields.io/codacy/1a359512094746ae9d39e281cdbc581a/master.svg?style=flat
+.. image:: https://img.shields.io/codacy/grade/1a359512094746ae9d39e281cdbc581a/master.svg?style=flat
     :target: https://www.codacy.com/app/pasztorpisti/kwonly-args
     :alt: code quality
-
-.. image:: https://landscape.io/github/pasztorpisti/kwonly-args/master/landscape.svg?style=flat
-    :target: https://landscape.io/github/pasztorpisti/kwonly-args/master
-    :alt: code health
 
 .. image:: https://img.shields.io/coveralls/pasztorpisti/kwonly-args/master.svg?style=flat
     :target: https://coveralls.io/r/pasztorpisti/kwonly-args?branch=master
